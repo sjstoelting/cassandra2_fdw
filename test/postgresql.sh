@@ -22,7 +22,7 @@ fi
 
 for PG_VERSION in "${POSTGRESQL_VERSIONS[@]}"
 do
-    # Set container names and PostgreSQL imagest
+    # Set container names and PostgreSQL images
     POSTGRESQL_CONTAINER="PostgreSQL_${PG_VERSION}_N"
     POSTGRESQL_RESULT_CONTAINER="PostgreSQL_RESULT_${PostgreSQL_RESULT_VERSION}_N"
     POSTGRESQL_RESULT_HOST=$(sudo docker exec $POSTGRESQL_RESULT_CONTAINER hostname -i)
