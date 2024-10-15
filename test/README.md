@@ -6,10 +6,10 @@ The Cassandra Docker images are available at [cassandra|Docker Hub](https://hub.
 
 ## Source Of The PostgreSQL Docker Images
 
-The Cassandra Docker images are available at [PostgreSQL|Docker Hub](https://hub.docker.com/_/postgres/).
+The PostgreSQL Docker images are available at [PostgreSQL|Docker Hub](https://hub.docker.com/_/postgres/).
 
 ## Test Scipts
-### build.cfg
+### `build.cfg`
 
 Contains the configuration of all parameters used in the tests.
 
@@ -22,14 +22,14 @@ Contains the configuration of all parameters used in the tests.
 - POSTGRESQL_PWD: The password, which is used to create the user in **POSTGRESQL_USER**
 - POSTGRESQL_DB1: Default database: _postgres_
 - POSTGRESQL_DB2: Test database
-- PostgreSQL_RESULT_VERSION: The PostgreSQL version of the database, where the query results will be stored: _15_
+- POSTGRESQL_RESULT_VERSION: The PostgreSQL version of the database, where the query results will be stored: _17_
 - POSTGRESQL_RESULT_DB: The PostgreSQL database, where the query results will be stored: _results_
 - POSTGRESQL_RESULT_SCHEMA: The schema inside the PostgreSQL database, where the query results will be stored: _result_data_
 - CASSANDRA_PORT: The port where Cassandra is listening: _9042_
 - CASSANDRA_VERSIONS: An array with all Cassandra version numbers, that should be tested against
 - DOCKER_NETWORK: The network, that is used by all test containers
 
-### test.sh
+### `test.sh`
 
 This script executes all tests.
 
@@ -38,24 +38,26 @@ This script executes all tests.
 ./test.sh
 ```
 
-### setup_img.sh
+### `setup_img.sh`
 
-The script creates all Docker images as configured in [build.cfg](#buildcfg). Within the PostgreSQL container the packages are updated and all needed packages will be installed, that are needed to compile the foreign data wrapper. It will compile the datastax Cassandra lib, that is needed to compile the extension.<br />
+The script creates all Docker images as configured in [`build.cfg`](#buildcfg). Within the PostgreSQL container the packages are updated and all needed packages will be installed, that are needed to compile the foreign data wrapper. It will compile the datastax Cassandra lib, that is needed to compile the extension.<br />
 The installation runs in all PostgreSQL containers.
 
-### cassandra.sh
+The creation of the containers are in separate files, `setup_pg.sh` and `setup_cas.sh` to be tested without the need to setup both container groups.
 
-The scripts to initialize the Cassandra data for every Container created in setup_img.sh and configured in [build.cfg](#buildcfg).
+### `cassandra.sh`
 
-Within a loop for every Cassandra container configured, it will call the [postgresql.sh](#postgresqlsh).
+The scripts to initialize the Cassandra data for every Container created in setup_img.sh and configured in [`build.cfg`](#buildcfg).
 
-### postgresql.sh
+Within a loop for every Cassandra container configured, it will call the [`postgresql.sh`](#postgresqlsh).
 
-The script creates a database in a PostgreSQL container and adds all objects to access the Cassandra container given as IP address as parameter within [cassandra.sh](#cassandrash).
+### `postgresql.sh`
 
-### cleanup.sh
+The script creates a database in a PostgreSQL container and adds all objects to access the Cassandra container given as IP address as parameter within [`cassandra.sh`](#cassandrash).
 
-The script stops and deletes all containers configured in [build.cfg](#buildcfg). It can also delete the Docker network, where all containers are running with.
+### `cleanup.sh`
+
+The script stops and deletes all containers configured in [`build.cfg`](#buildcfg). It can also delete the Docker network, where all containers are running with.
 
 By default the result container is not removed. The shell script interprets **1** given as parameter as to remove the container with the result database, too.<br />
 As there are no contianers left when started with **1**, the docker network will be removed, too.
