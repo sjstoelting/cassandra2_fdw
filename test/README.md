@@ -1,5 +1,4 @@
 # Testing the Foreign Data Wraper
-
 ## Source Of The Cassandra Docker Images
 
 The Cassandra Docker images are available at [cassandra|Docker Hub](https://hub.docker.com/_/cassandra/).
@@ -59,14 +58,20 @@ The script creates a database in a PostgreSQL container and adds all objects to 
 
 The script stops and deletes all containers configured in [`build.cfg`](#buildcfg). It can also delete the Docker network, where all containers are running with.
 
-By default the result container is not removed. The shell script interprets **1** given as parameter as to remove the container with the result database, too.<br />
-As there are no contianers left when started with **1**, the docker network will be removed, too.
+By default the result container is not removed. The shell script interprets **1** or **true** given as parameter as to remove the container with the result database, too.<br />
+As there are no contianers left when started with **1** or **true**, the docker network will be removed, too.
 
 This can be achieved by calling this script manually:
 
 ```bash
 # Remove all containers used for testing and the network
 ./cleanup.sh 1
+```
+
+Or by
+```bash
+# Remove all containers used for testing and the network
+./cleanup.sh true
 ```
 
 ## Checking Test Results

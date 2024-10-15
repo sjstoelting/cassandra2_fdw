@@ -3,12 +3,17 @@
 # Set variables
 source ./build.cfg
 
-# Get the IP address of the Cassandra server
-if [ -z "$1" ]; then
-    REMOVE_RESULT_SERVER=0
+# Function to check for a string is in another string
+stringContains() { case $2 in *$1* ) return 0;; *) return 1;; esac ;}
+
+# Validate input argument whether the result container should be removed
+if [ "$1" = 1 ] || [ "$1" = "true" ] ; then
+    REMOVE_RESULT_SERVER=true
+    echo "Result server will be removed"
 else
-    REMOVE_RESULT_SERVER=1
-fi
+    REMOVE_RESULT_SERVER=false
+fi # [ "$1" = 1 ] || [ "$1" = "true" ]
+
 
 # Remove containers
 ## Cassandra
@@ -22,7 +27,7 @@ do
     echo "Deleting container $CASSANDRA_CONTAINER ..."
     sudo docker stop $CASSANDRA_CONTAINER 2> /dev/null || true
     sudo docker rm $CASSANDRA_CONTAINER 2> /dev/null || true
-done
+done # CASSANDRA_VERSION in "${CASSANDRA_VERSIONS[@]}"
 
 ## PostgreSQL
 for PG_VERSION in "${POSTGRESQL_VERSIONS[@]}"
@@ -33,19 +38,28 @@ do
     echo "Deleting container $POSTGRESQL_CONTAINER ..."
     sudo docker stop $POSTGRESQL_CONTAINER 2> /dev/null || true
     sudo docker rm $POSTGRESQL_CONTAINER 2> /dev/null || true
-done
+done # PG_VERSION in "${POSTGRESQL_VERSIONS[@]}"
 
 # PostgreSQL result server
-if [ $REMOVE_RESULT_SERVER -eq 1 ]; then
-    POSTGRESQL_RESULT_CONTAINER="POSTGRESQL_RESULT_${POSTGRESQL_RESULT_VERSION}_N"
+POSTGRESQL_RESULT_CONTAINER="POSTGRESQL_RESULT_${POSTGRESQL_RESULT_VERSION}_N"
+
+if [ $REMOVE_RESULT_SERVER = true ]; then
     sudo docker stop $POSTGRESQL_RESULT_CONTAINER 2> /dev/null || true
     sudo docker rm $POSTGRESQL_RESULT_CONTAINER 2> /dev/null || true
 
     # Remove the network
     echo "Removing network $DOCKER_NETWORK ..."
     sudo docker network rm $DOCKER_NETWORK 2> /dev/null || true
+fi # $REMOVE_RESULT_SERVER = true
 
-    echo "Result container $POSTGRESQL_RESULT_CONTAINER and docker network $DOCKER_NETWORK have been removed"
+DOCKER_NETWORK_CHECK=$(sudo docker ps --format '{{ .ID }} {{ .Names }} {{ json .Networks }}')
+
+# Check if the Docker network is still up
+if stringContains "$DOCKER_NETWORK" "$DOCKER_NETWORK_CHECK" && stringContains "$POSTGRESQL_RESULT_CONTAINER" "$DOCKER_NETWORK_CHECK"; then
+    echo "Result container $POSTGRESQL_RESULT_CONTAINER and/or docker network $DOCKER_NETWORK are still up!"
 else
-    echo "Result container $POSTGRESQL_RESULT_CONTAINER and docker network $DOCKER_NETWORK are still up!"
-fi
+    echo "Result container $POSTGRESQL_RESULT_CONTAINER and/or docker network $DOCKER_NETWORK have been removed"
+fi # stringContains "$DOCKER_NETWORK" "$DOCKER_NETWORK_CHECK" && stringContains "$POSTGRESQL_RESULT_CONTAINER" "$DOCKER_NETWORK_CHECK"
+
+echo ""
+echo "Cleanup finished"
