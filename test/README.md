@@ -43,7 +43,7 @@ This script executes all tests.
 The script creates all Docker images as configured in [`build.cfg`](#buildcfg). Within the PostgreSQL container the packages are updated and all needed packages will be installed, that are needed to compile the foreign data wrapper. It will compile the datastax Cassandra lib, that is needed to compile the extension.<br />
 The installation runs in all PostgreSQL containers.
 
-The creation of the containers are in separate files, `setup_pg.sh` and `setup_cas.sh` to be tested without the need to setup both container groups.
+The creation of the containers are in separate files, `setup_pg.sh` for PostgreSQL containers, `setup_cas.sh` for Cassandra containers, and `setup_res.sh` for the Container with the PostgreSQL database where the test results are stored, to be tested without the need to setup all container groups.
 
 ### `cassandra.sh`
 
